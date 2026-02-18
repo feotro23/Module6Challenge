@@ -1,0 +1,573 @@
+﻿@page
+@model Portfolio.Pages.IndexModel
+@{
+    ViewData["Title"] = "Drew Page — Portfolio";
+}
+
+<style>
+    /* ───── CSS Variables & Dark Mode ───── */
+    :root {
+        --bg:          #f8f9fa;
+        --bg-card:     #ffffff;
+        --text:        #212529;
+        --text-muted:  #6c757d;
+        --accent:      #10b981;
+        --accent-glow: rgba(16, 185, 129, .15);
+        --border:      #dee2e6;
+        --gradient:    linear-gradient(135deg, #10b981, #047857);
+        --shadow:      0 4px 24px rgba(0,0,0,.06);
+        --shadow-hover:0 8px 32px rgba(0,0,0,.12);
+    }
+
+    [data-theme="dark"] {
+        --bg:          #0f1117;
+        --bg-card:     #1a1d2e;
+        --text:        #e2e8f0;
+        --text-muted:  #94a3b8;
+        --accent:      #34d399;
+        --accent-glow: rgba(52, 211, 153, .15);
+        --border:      #2d3348;
+        --gradient:    linear-gradient(135deg, #34d399, #10b981);
+        --shadow:      0 4px 24px rgba(0,0,0,.3);
+        --shadow-hover:0 8px 32px rgba(0,0,0,.4);
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+        transition: background .3s, color .3s;
+        scroll-behavior: smooth;
+    }
+
+    /* ───── Dark-Mode Toggle ───── */
+    .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1050;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        transition: background .3s, border .3s;
+        font-size: 1.2rem;
+    }
+
+    /* ───── Hero Section ───── */
+    .hero {
+        background: var(--gradient);
+        color: #fff;
+        padding: 5rem 1rem;
+        text-align: center;
+        border-radius: 0 0 2rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 50%, rgba(255,255,255,.12) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .hero h1 { font-weight: 800; letter-spacing: -1px; }
+    .hero .lead { opacity: .9; font-size: 1.25rem; }
+    .hero-buttons a {
+        margin: .35rem;
+        border-radius: 2rem;
+        padding: .6rem 1.5rem;
+        font-weight: 600;
+        transition: transform .2s;
+    }
+    .hero-buttons a:hover { transform: translateY(-2px); }
+
+    /* ───── Section Titles ───── */
+    .section-title {
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+    }
+    .section-title::after {
+        content: "";
+        display: block;
+        width: 50px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--gradient);
+        margin-top: .5rem;
+    }
+
+    /* ───── Cards (shared) ───── */
+    .card-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        transition: transform .25s, box-shadow .25s;
+        overflow: hidden;
+    }
+    .card-custom:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    /* ───── Project Cards ───── */
+    .project-year {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--gradient);
+        color: #fff;
+        font-size: .75rem;
+        font-weight: 700;
+        padding: .25rem .65rem;
+        border-radius: 1rem;
+    }
+    .tech-badge {
+        display: inline-block;
+        background: var(--accent-glow);
+        color: var(--accent);
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .2rem .6rem;
+        border-radius: .75rem;
+        margin: .15rem .15rem .15rem 0;
+    }
+    .project-links a {
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+        font-size: .875rem;
+        margin-right: 1rem;
+    }
+    .project-links a:hover { text-decoration: underline; }
+
+    /* ───── Skill Bars ───── */
+    .skill-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: .85rem;
+    }
+    .skill-name {
+        min-width: 140px;
+        font-weight: 600;
+        font-size: .9rem;
+    }
+    .skill-bar-track {
+        flex: 1;
+        height: 10px;
+        background: var(--border);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    .skill-bar-fill {
+        height: 100%;
+        border-radius: 5px;
+        background: var(--gradient);
+        width: 0%;
+        transition: width .8s cubic-bezier(.4,0,.2,1);
+    }
+    .skill-level {
+        min-width: 36px;
+        text-align: right;
+        font-weight: 700;
+        font-size: .85rem;
+        color: var(--accent);
+        margin-left: .75rem;
+    }
+
+    /* ───── Education Timeline ───── */
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: .35rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--gradient);
+        box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+    .timeline-item::after {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 1.5rem;
+        width: 2px;
+        height: calc(100% - .5rem);
+        background: var(--border);
+    }
+    .timeline-item:last-child::after { display: none; }
+
+    /* ───── Contact Form ───── */
+    .form-control-custom {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: .75rem;
+        padding: .65rem 1rem;
+        transition: border .2s, box-shadow .2s;
+    }
+    .form-control-custom:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+        outline: none;
+        background: var(--bg-card);
+        color: var(--text);
+    }
+    .btn-accent {
+        background: var(--gradient);
+        color: #fff;
+        border: none;
+        border-radius: 2rem;
+        padding: .65rem 2rem;
+        font-weight: 700;
+        transition: opacity .2s, transform .2s;
+    }
+    .btn-accent:hover { opacity: .9; transform: translateY(-2px); color: #fff; }
+
+    /* ───── Fade-In Animation ───── */
+    .fade-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity .6s ease-out, transform .6s ease-out;
+    }
+    .fade-up.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* ───── Footer ───── */
+    .footer {
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 2rem 0;
+        text-align: center;
+        font-size: .875rem;
+    }
+
+    /* ───── Dark-Mode Overrides for Bootstrap ───── */
+    [data-theme="dark"] .navbar {
+        background: var(--bg-card) !important;
+        border-color: var(--border) !important;
+    }
+    [data-theme="dark"] .navbar-brand,
+    [data-theme="dark"] .nav-link.text-dark,
+    [data-theme="dark"] .nav-link {
+        color: var(--text) !important;
+    }
+    [data-theme="dark"] .nav-link:hover {
+        color: var(--accent) !important;
+    }
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-control-custom {
+        background: var(--bg-card) !important;
+        color: var(--text) !important;
+        border-color: var(--border) !important;
+    }
+    [data-theme="dark"] .form-control::placeholder {
+        color: var(--text-muted) !important;
+    }
+    [data-theme="dark"] .form-control:focus,
+    [data-theme="dark"] .form-control-custom:focus {
+        background: var(--bg-card) !important;
+        color: var(--text) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px var(--accent-glow) !important;
+    }
+    [data-theme="dark"] .form-label {
+        color: var(--text) !important;
+    }
+    [data-theme="dark"] .border-top,
+    [data-theme="dark"] .border-bottom {
+        border-color: var(--border) !important;
+    }
+    [data-theme="dark"] .footer.text-muted,
+    [data-theme="dark"] .text-muted {
+        color: var(--text-muted) !important;
+    }
+    [data-theme="dark"] .footer a {
+        color: var(--accent) !important;
+    }
+    [data-theme="dark"] .box-shadow {
+        box-shadow: var(--shadow) !important;
+    }
+</style>
+
+<!-- Dark-mode toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <span id="themeIcon">🌙</span>
+</button>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero fade-up">
+    <div class="container">
+        <h1 class="display-3 mb-3">Drew Page</h1>
+        <p class="lead mb-4">IT Student at Minneapolis College · Software Developer · AI Enthusiast</p>
+        <div class="hero-buttons">
+            <a href="#projects" class="btn btn-light">View Projects</a>
+            <a href="#contact" class="btn btn-outline-light">Get in Touch</a>
+            @* TODO: Replace # with an actual link to hosted resume PDF *@
+            <a href="#" class="btn btn-outline-light" title="Download resume">
+                <i class="bi bi-download"></i> Resume
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+
+    <!-- ═══════════ ABOUT ═══════════ -->
+    <section class="mb-5 fade-up" id="about">
+        <h2 class="section-title">About Me</h2>
+        <div class="card-custom p-4">
+            <p class="mb-0" style="font-size:1.05rem; line-height:1.75;">
+                I'm an IT student at Minneapolis College building skills in <strong>C#</strong>,
+                <strong>Python</strong>, and <strong>Rust</strong>. I'm passionate about game development
+                and AI integration, currently working on the <strong>Genesis Engine</strong>&nbsp;— an
+                AI-native game engine where inference runs as physics. I also built
+                <strong>Atmospheric Harvester</strong>, a resource management game driven by real-time weather data.
+            </p>
+        </div>
+    </section>
+
+    <!-- ═══════════ PROJECTS ═══════════ -->
+    <section class="mb-5 fade-up" id="projects">
+        <h2 class="section-title">Projects</h2>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @for (int i = 0; i < Model.Projects.Length; i++)
+            {
+                var project = Model.Projects[i];
+                <div class="col">
+                    <div class="card-custom p-4 h-100 position-relative">
+                        <span class="project-year">@project.Year</span>
+                        <h5 class="fw-bold mb-2" style="color:var(--accent);">@project.Title</h5>
+                        <p class="mb-3" style="color:var(--text-muted);">@project.Description</p>
+                        <div class="mb-3">
+                            @foreach (var tech in project.TechStack)
+                            {
+                                <span class="tech-badge">@tech</span>
+                            }
+                        </div>
+                        <div class="project-links">
+                            @if (project.ProjectUrl is not null)
+                            {
+                                <a href="@project.ProjectUrl" target="_blank">
+                                    <i class="bi bi-box-arrow-up-right"></i> Live Demo
+                                </a>
+                            }
+                            @if (project.GitHubUrl is not null)
+                            {
+                                <a href="@project.GitHubUrl" target="_blank">
+                                    <i class="bi bi-github"></i> Source
+                                </a>
+                            }
+                            @if (project.ProjectUrl is null && project.GitHubUrl is null)
+                            {
+                                <span class="tech-badge"><i class="bi bi-lock-fill"></i> In Development</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- ═══════════ SKILLS ═══════════ -->
+    <section class="mb-5 fade-up" id="skills">
+        <h2 class="section-title">Technical Skills</h2>
+        <div class="row g-4">
+            @{
+                var categories = Model.Skills
+                    .GroupBy(s => s.Category)
+                    .OrderByDescending(g => g.Max(s => s.ProficiencyLevel));
+            }
+            @foreach (var group in categories)
+            {
+                <div class="col-md-6">
+                    <div class="card-custom p-4 h-100">
+                        <h6 class="fw-bold text-uppercase mb-3" style="color:var(--text-muted); letter-spacing:1px;">
+                            @group.Key
+                        </h6>
+                        @foreach (var skill in group.OrderByDescending(s => s.ProficiencyLevel))
+                        {
+                            <div class="skill-row">
+                                <span class="skill-name">@skill.Name</span>
+                                <div class="skill-bar-track">
+                                    <div class="skill-bar-fill" data-width="@skill.ProficiencyPercent"></div>
+                                </div>
+                                <span class="skill-level">@skill.ProficiencyLevel/5</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- ═══════════ TOP SKILLS ═══════════ -->
+    <section class="mb-5 fade-up" id="top-skills">
+        <h2 class="section-title">Top Skills</h2>
+        <div class="row g-3">
+            @for (int i = 0; i < Model.Skills.Length; i++)
+            {
+                @if (Model.Skills[i].ProficiencyLevel >= 4)
+                {
+                    <div class="col-md-4">
+                        <div class="card-custom p-4 text-center">
+                            <h5 class="fw-bold mb-2" style="color:var(--accent);">@Model.Skills[i].Name</h5>
+                            <p class="mb-2" style="color:var(--text-muted);">@Model.Skills[i].Category</p>
+                            <span class="badge rounded-pill" style="background:var(--gradient); font-size:.9rem; padding:.5rem 1rem;">
+                                @Model.Skills[i].ProficiencyLevel / 5
+                            </span>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </section>
+    
+    <!-- ═══════════ EDUCATION ═══════════ -->
+    <section class="mb-5 fade-up" id="education">
+        <h2 class="section-title">Education</h2>
+        <div class="card-custom p-4">
+            @for (int i = 0; i < Model.Educations.Length; i++)
+            {
+                var edu = Model.Educations[i];
+                <div class="timeline-item">
+                    <h5 class="fw-bold mb-1">@edu.Institution</h5>
+                    <p class="mb-1" style="color:var(--accent); font-weight:600;">
+                        @edu.Degree — @edu.FieldOfStudy
+                    </p>
+                    <small class="d-block mb-2" style="color:var(--text-muted);">@edu.DateRange</small>
+                    @if (edu.Highlights.Length > 0)
+                    {
+                        <div>
+                            @foreach (var h in edu.Highlights)
+                            {
+                                <span class="tech-badge">@h</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- ═══════════ CONTACT ═══════════ -->
+    <section class="mb-5 fade-up" id="contact">
+        <h2 class="section-title">Get in Touch</h2>
+        <div class="card-custom p-4">
+            @if (Model.FormSubmitted)
+            {
+                <div class="alert alert-success mb-0 text-center" role="alert">
+                    <strong>Thanks for reaching out!</strong> I'll get back to you as soon as I can.
+                </div>
+            }
+            else
+            {
+                <form method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Name</label>
+                            <input asp-for="ContactName" class="form-control form-control-custom"
+                                   placeholder="Your name" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input asp-for="ContactEmail" type="email"
+                                   class="form-control form-control-custom"
+                                   placeholder="you@example.com" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Message</label>
+                            <textarea asp-for="ContactMessage" rows="4"
+                                      class="form-control form-control-custom"
+                                      placeholder="What would you like to talk about?" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <span asp-validation-summary="All" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-accent">
+                                <i class="bi bi-send-fill"></i> Send Message
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </section>
+
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+    <div class="container">
+        <p class="mb-1">&copy; @DateTime.Now.Year Drew Page. Built with ASP.NET Core Razor Pages.</p>
+    </div>
+</footer>
+
+<script>
+    // ── Dark Mode Toggle ──
+    const toggle = document.getElementById('themeToggle');
+    const icon   = document.getElementById('themeIcon');
+
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', theme);
+    }
+
+    // Load saved preference or respect OS setting
+    const saved = localStorage.getItem('theme');
+    if (saved) {
+        applyTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+    }
+
+    toggle.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Fade-Up on Scroll ──
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ── Animate Skill Bars ──
+    const barObserver = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.querySelectorAll('.skill-bar-fill').forEach(bar => {
+                    bar.style.width = bar.dataset.width + '%';
+                });
+                barObserver.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    document.querySelectorAll('#skills').forEach(el => barObserver.observe(el));
+</script>
